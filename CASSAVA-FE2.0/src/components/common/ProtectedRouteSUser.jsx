@@ -1,16 +1,16 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React from "react";
+import { Navigate } from "react-router-dom";
 
 const ProtectedRouteSUser = ({ children }) => {
   // ดึงข้อมูล roles จาก localStorage และแปลงกลับเป็น JSON
-  const rolesString = localStorage.getItem('roles');
+  const rolesString = sessionStorage.getItem("roles");
   const roles = rolesString ? JSON.parse(rolesString) : [];
 
-  console.log('ProtectedRoute - roles = ', roles);
-
   // ตรวจสอบว่า roles เท่ากับ 'superuser' หรือไม่
-  if (!roles.includes('superuser')) {
-    console.log('ProtectedRoute - User does not have required role, redirecting to sign-in');
+  if (!roles.includes("superuser")) {
+    console.log(
+      "ProtectedRoute - User does not have required role, redirecting to sign-in"
+    );
     return <Navigate to="/sign-in" />;
   }
 

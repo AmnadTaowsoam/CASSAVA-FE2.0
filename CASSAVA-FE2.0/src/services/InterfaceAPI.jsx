@@ -1,66 +1,73 @@
 import axios from "axios";
 
-// BASE URL for the Interface API
-const INTERFACE_ENDPOINT = import.meta.env.VITE_REACT_APP_INTERFACE_ENDPOINT;
+// Create a custom Axios instance
 const apiClient = axios.create({
-  baseURL: INTERFACE_ENDPOINT,
-  headers: {
-    "Content-Type": "application/json", // Ensure JSON content type for all requests
-  },
+  baseURL: import.meta.env.VITE_REACT_APP_INTERFACE_ENDPOINT,
+  
 });
 
-const useInterfaceAPIService = () => {
-  // Updated login function to use new endpoint and handle username/password
-  const login = async (username) => {
-    console.log("Login function entered with:", username);
-    try {
-      const response = await apiClient.post("/api/auth/login", { username });
-      const receivedToken = response.data.token;  // Assuming the token is returned directly under data.token
-      localStorage.setItem("token", receivedToken);
-      console.log("Token received and stored:", receivedToken);
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
-    }
-  };
-
-  const validatePayload = (payload) => {
-    if (!payload.inslot ||!payload.batch || !payload.material || !payload.plant || !payload.operation || !payload.miccode || typeof payload.result !== 'number') {
-      console.error("Validation error: Missing or invalid fields", payload);
-      return false;
-    }
-    return true;
-  };
-
-  // Updated function to send quality data to the specific endpoint
-  const sendPayload = async (payload) => {
-    const accessToken = localStorage.getItem("token");
-    if (!accessToken) {
-      console.error("No token found, please login first.");
-      throw new Error("Authentication required. Please login.");
-    }
-  
-    if (!validatePayload(payload)) {
-      throw new Error("Payload validation failed. Check the console for more details.");
-    }
-  
-    try {
-      const response = await apiClient.post(
-        "/api/quality-data",
-        payload,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      console.log("Payload sent successfully:", payload);
-      return response.data;
-    } catch (error) {
-      console.error("Error sending payload:", error);
-      throw error;
-    }
-  };
-
-  return { login, sendPayload };
+// Utility function to handle getting the stored token
+const getToken = () => {
+  const token = sessionStorage.getItem("interfaceAccessToken");
+  if (!token) {
+    console.error("Authentication token is missing. Please login again.");
+    throw new Error("Authentication required.");
+  }
+  return token;
 };
 
-export default useInterfaceAPIService;
+const predictionAPIService = {
+  async login() {
+    const username = sessionStorage.getItem("username");
+    if (!username) {
+      console.error("No username found in sessionStorage");
+      throw new Error("Missing credentials");
+    }
+
+    try {
+      const response = await apiClient.post("/api/auth/login", { username });
+      if (response.status === 200 && response.data.accessToken) {
+        sessionStorage.setItem("interfaceAccessToken", response.data.accessToken);
+        sessionStorage.setItem("interfaceRefreshToken", response.data.refreshToken);
+        return response.data.accessToken;
+      } else {
+        throw new Error("Failed to get token");
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      throw error;
+    }
+  },
+
+  async sandInterface({ inslot, batch, material, plant, operation, miccode, result }) {
+    const token = sessionStorage.getItem("interfaceAccessToken");
+    if (!token) {
+      throw new Error("No Prediction token obtained");
+    }
+
+    const payload = {
+      inslot, batch, material, plant, operation, miccode, result
+    };
+
+    try {
+      const response = await apiClient.post("/api/quality-data", payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // Check if the status code is either 200 (OK) or 201 (Created), both are successful
+      if (response.status === 200 || response.status === 201) {
+        return response.data;  // Successfully handle the data
+      } else {
+        throw new Error(`Failed to submit data: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error("Error in sandInterface:", error.response ? error.response.data : error);
+      throw new Error("Failed to interface data. Please check the input and try again.");
+    }
+  },
+};
+
+export default predictionAPIService;

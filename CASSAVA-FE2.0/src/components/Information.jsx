@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import predictionAPIService from "../services/PredictionAPI";
 import { RegionDict } from "../assets/MasterData";
 
-function Information({ formData, setFormData }) {
+function Information({ formData, setFormData, setInterfaceResult }) {
   const [fines, setFines] = useState("");
   const [bulk, setBulk] = useState("");
   const [predictionResult, setPredictionResult] = useState({
@@ -17,20 +17,17 @@ function Information({ formData, setFormData }) {
   // Handle changes to the fines and bulk inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "fines") {
-      if (!isNaN(parseFloat(value))) {
-        setFines(parseFloat(value));
-      } else {
-        setFines(""); // หรือคุณอาจจะตั้งค่าเป็น null หรือ 0 ขึ้นอยู่กับความเหมาะสมของแอปพลิเคชันของคุณ
-      }
-    } else if (name === "bulk") {
-      if (!isNaN(parseFloat(value))) {
-        setBulk(parseFloat(value));
-      } else {
-        setBulk(""); // หรือคุณอาจจะตั้งค่าเป็น null หรือ 0 ขึ้นอยู่กับความเหมาะสมของแอปพลิเคชันของคุณ
+    // Regex to handle numbers including those starting with a decimal point
+    const reg = /^\d*\.?\d*$/;
+  
+    if (value === "" || reg.test(value)) {
+      // Set the value directly without parsing it first to avoid stripping partial numeric entries (e.g., ".")
+      if (name === "fines" || name === "bulk") {
+        const setter = name === "fines" ? setFines : setBulk;
+        setter(value);
       }
     }
-  };
+  };   
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -71,13 +68,19 @@ function Information({ formData, setFormData }) {
         bulk: bulkValue,
       };
 
-      console.log("Sending data:", payload);
       const result = await predictionAPIService.sandPrediction(payload);
 
       setPredictionResult({
         sandPredictValue: parseFloat(result.sand_predict_value).toFixed(2),
         totalSandValue: parseFloat(result.total_sand_value).toFixed(2),
       });
+      
+      setInterfaceResult({
+        fines: finesValue,
+        bulk: bulkValue,
+        totalSandValue: parseFloat(result.total_sand_value).toFixed(2),
+      })
+
       setStatusMessage("Calculation complete. Results updated below.");
     } catch (err) {
       console.error("API call failed:", err);
@@ -156,13 +159,14 @@ function Information({ formData, setFormData }) {
           <div className="col-span-8 flex justify-end mt-4">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary mb-2"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Calculating..." : "Calculate"}
             </button>
           </div>
         </form>
+        <hr />
       </div>
     </>
   );

@@ -9,19 +9,19 @@ export const useAuth = () => useContext(AuthContext);
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     // Initialize user state from localStorage to reduce re-renders
-    const userData = localStorage.getItem("user");
+    const userData = sessionStorage.getItem("user");
     return userData ? JSON.parse(userData) : null;
   });
 
   // Function to handle login
   const login = (userData) => {
-    localStorage.setItem("user", JSON.stringify(userData));
+    sessionStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 
   // Function to handle logout
   const logout = () => {
-    localStorage.clear();
+    sessionStorage.clear();
     setUser(null);
   };
 

@@ -7,9 +7,9 @@ const apiClient = axios.create({
 
 const predictionAPIService = {
   async login() {
-    const username = localStorage.getItem("username");
+    const username = sessionStorage.getItem("username");
     if (!username) {
-      console.error("No username found in localStorage");
+      console.error("No username found in sessionStorage");
       throw new Error("Missing credentials");
     }
 
@@ -19,8 +19,8 @@ const predictionAPIService = {
 
       if (status === 200 && data.accessToken) {
         console.log("Login successful");
-        localStorage.setItem("predictAccessToken", data.accessToken);
-        localStorage.setItem("predictRefreshToken", data.refreshToken);
+        sessionStorage.setItem("predictAccessToken", data.accessToken);
+        sessionStorage.setItem("predictRefreshToken", data.refreshToken);
         return data.accessToken; // Consider returning full `data` object if the refreshToken or other data might be needed later
       } else {
         throw new Error("Failed to get token");
@@ -32,7 +32,7 @@ const predictionAPIService = {
   },
 
   async sandPrediction({inslot, batch, month, plant, vendor, region, fines, bulk}) {
-    const token = localStorage.getItem("predictAccessToken");
+    const token = sessionStorage.getItem("predictAccessToken");
     if (!token) {
       throw new Error("No Prediction token obtained");
     }

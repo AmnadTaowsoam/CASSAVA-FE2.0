@@ -31,7 +31,6 @@ const QRCodeReader = ({ setPredictionData = () => {} }) => {  // Default functio
             setInputText('');
             // Update interfaceData state
             setPredictionData(data);  // Use data directly or map it as needed
-            console.log('prediction-Data:',data);
             console.log('Input data from QRCode successfully....');
         } else {
             console.log('Invalid input. Please provide all 8 parts.');

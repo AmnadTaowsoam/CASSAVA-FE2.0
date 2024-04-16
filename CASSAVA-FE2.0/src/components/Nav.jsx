@@ -40,7 +40,7 @@ function Nav() {
             <details className="group">
               <summary className="cursor-pointer">More</summary>
               <ul className="absolute hidden group-hover:block bg-blue-800 p-2">
-                <li><Link to="/register" className="block text-sm px-2 py-1">Register</Link></li>
+                {/* <li><Link to="/register" className="block text-sm px-2 py-1">Register</Link></li> */}
                 <li><Link to="/logout" className="block text-sm px-2 py-1">Log Out</Link></li>
               </ul>
             </details>

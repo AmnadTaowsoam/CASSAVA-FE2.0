@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 
 const ProtectedRouteUser = ({ children }) => {
   // ดึงข้อมูล roles จาก localStorage และแปลงกลับเป็น JSON
-  const rolesString = localStorage.getItem("roles");
+  const rolesString = sessionStorage.getItem("roles");
   const roles = rolesString ? JSON.parse(rolesString) : [];
 
   // ตรวจสอบว่า roles มี 'user' หรือ 'superuser'

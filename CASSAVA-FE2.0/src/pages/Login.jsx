@@ -65,24 +65,23 @@ const Login = () => {
       }
 
       const data = await response.json();
-      console.log("data respond =", data);
       if (!response.ok) {
         throw new Error(data.message || "Something went wrong");
       }
 
-      // เก็บ accessToken, refreshToken, และ roles ลงใน localStorage
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      localStorage.setItem("roles", JSON.stringify(data.roles));
-      localStorage.setItem("username", credentials.username);
+      // เก็บ accessToken, refreshToken, และ roles ลงใน sessionStorage
+      sessionStorage.setItem("accessToken", data.accessToken);
+      sessionStorage.setItem("refreshToken", data.refreshToken);
+      sessionStorage.setItem("roles", JSON.stringify(data.roles));
+      sessionStorage.setItem("username", credentials.username);
 
       // ตรวจสอบก่อนเก็บ machine_id และ machine_ip
       if (data.machine_id && data.machine_ip) {
-        localStorage.setItem("machine_id", data.machine_id);
-        localStorage.setItem("machine_ip", data.machine_ip);
+        sessionStorage.setItem("machine_id", data.machine_id);
+        sessionStorage.setItem("machine_ip", data.machine_ip);
       }
-      localStorage.setItem("machine_id", data.machine_id);
-      localStorage.setItem("machine_ip", data.machine_ip);
+      sessionStorage.setItem("machine_id", data.machine_id);
+      sessionStorage.setItem("machine_ip", data.machine_ip);
 
       setIsLoading(false);
       navigate("/");

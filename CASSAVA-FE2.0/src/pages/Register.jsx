@@ -81,7 +81,6 @@ const Register = () => {
       }
 
       const result = await response.json();
-      console.log(result); // Logging the response for debugging purposes
 
       // Assuming the request was successful
       setIsLoading(false);

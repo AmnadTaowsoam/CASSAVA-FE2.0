@@ -7,7 +7,7 @@ const Logout = () => {
   useEffect(() => {
     const logout = async () => {
       const apiUrl = import.meta.env.VITE_REACT_APP_API_BASE_URL;
-      const refreshToken = localStorage.getItem("refreshToken");
+      const refreshToken = sessionStorage.getItem("refreshToken");
 
       try {
         await fetch(`${apiUrl}/api/auth/logout`, {
@@ -31,6 +31,10 @@ const Logout = () => {
       localStorage.removeItem("machine_ip");
       localStorage.removeItem("machine_id");
       localStorage.removeItem("user");
+      localStorage.removeItem("predictAccessToken");
+      localStorage.removeItem("predictRefreshToken");
+      localStorage.removeItem("interfaceRefreshToken");
+      localStorage.removeItem("interfaceAccessToken");
 
       // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
       navigate("/sign-in");
